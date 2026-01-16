@@ -28,18 +28,18 @@ public class FlightService {
      */
     public Flight createFlight(CreateFlightRequestDto request) {
         Location departure = new Location(
-                request.departureIcaoCountryPrefix(),
+                request.departureIcaoCountryCode(),
                 request.departureCity(),
                 request.departureIcaoAirportCode()
         );
 
         Location destination = new Location(
-                request.destinationIcaoCountryPrefix(),
+                request.destinationIcaoCountryCode(),
                 request.destinationCity(),
                 request.destinationIcaoAirportCode()
         );
 
-        if (departure.icaoAirportCode().equals(destination.icaoAirportCode())) {
+        if (departure.getIcaoAirportCode().equals(destination.getIcaoAirportCode())) {
             throw new IllegalArgumentException("Departure and destination airports must be different");
         }
 
@@ -55,10 +55,10 @@ public class FlightService {
 
         // Check for active alerts affecting the flight
         Optional<CountryFlightAlert> departureAlert = alertService
-                .findActiveAlertForCountryAt(departure.icaoCountryCode(), request.scheduledDepartureTime());
+                .findActiveAlertForCountryAt(departure.getIcaoCountryCode(), request.scheduledDepartureTime());
 
         Optional<CountryFlightAlert> destinationAlert = alertService
-                .findActiveAlertForCountryAt(destination.icaoCountryCode(), request.scheduledDepartureTime());
+                .findActiveAlertForCountryAt(destination.getIcaoCountryCode(), request.scheduledDepartureTime());
 
         if (departureAlert.isPresent()) {
             flight.cancel();
@@ -74,10 +74,14 @@ public class FlightService {
     public Flight cancelFlight(UUID flightId) {
         Flight flight = flightRepository
                 .findById(flightId)
-                .orElseThrow(() -> new FlightNotFoundException(flightId.toString()));
+                .orElseThrow(() -> new FlightNotFoundException(flightId));
 
         flight.cancel();
 
         return flightRepository.save(flight);
+    }
+
+    public Optional<Flight> findById(UUID id) {
+        return flightRepository.findById(id);
     }
 }

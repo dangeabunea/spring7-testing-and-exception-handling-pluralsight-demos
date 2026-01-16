@@ -1,30 +1,30 @@
 package com.pluralsight.afm.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
  * Represents a flight alert for a specific country.
- * Alerts are temporal and can impact flights departing from or arriving to the affected country.
- * If endDateTime is null, the alert is considered ongoing.
- * <p>
- * This class is immutable except for the endDateTime, which can be set to close an alert.
+ * Alerts are temporal (have start and end times) and can impact flights
+ * departing from or arriving to the affected country.
  */
+@Entity
+@Table(name = "country_flight_alerts")
 public class CountryFlightAlert {
+
+    @Id
     private UUID id;
+
     private String icaoCountryCode;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
     private String description;
 
     protected CountryFlightAlert() {}
-
-    public CountryFlightAlert(UUID id,
-                              String icaoCountryCode,
-                              LocalDateTime startDateTime,
-                              String description) {
-        this(id, icaoCountryCode, startDateTime, null, description);
-    }
 
     public CountryFlightAlert(UUID id,
                               String icaoCountryCode,
@@ -37,13 +37,17 @@ public class CountryFlightAlert {
         if (startDateTime == null) {
             throw new IllegalArgumentException("Start date/time cannot be null");
         }
+        if (endDateTime == null) {
+            throw new IllegalArgumentException("End date/time cannot be null");
+        }
         if (description == null || description.isBlank()) {
             throw new IllegalArgumentException("Description cannot be null or blank");
         }
-        if (endDateTime != null && endDateTime.isBefore(startDateTime)) {
+        if (endDateTime.isBefore(startDateTime)) {
             throw new IllegalArgumentException("End date/time cannot be before start date/time");
         }
 
+        this.id = id;
         this.icaoCountryCode = icaoCountryCode;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
@@ -52,8 +56,7 @@ public class CountryFlightAlert {
 
     /**
      * Checks if this alert is active at the given time.
-     * An alert is active if the check time is between start and end dates.
-     * If endDateTime is null, the alert is considered ongoing (active indefinitely).
+     * An alert is active if the check time is between start and end dates (inclusive).
      */
     public boolean isActiveAt(LocalDateTime checkTime) {
         if (checkTime == null) {
@@ -61,22 +64,16 @@ public class CountryFlightAlert {
         }
 
         boolean afterStart = !checkTime.isBefore(startDateTime);
-        boolean beforeEnd = endDateTime == null || !checkTime.isAfter(endDateTime);
+        boolean beforeEnd = !checkTime.isAfter(endDateTime);
 
         return afterStart && beforeEnd;
     }
 
-    public void close(LocalDateTime endDateTime) {
-        if (this.endDateTime != null) {
-            throw new IllegalStateException("Alert is already closed");
-        }
-        if (endDateTime == null) {
-            throw new IllegalArgumentException("End date/time cannot be null");
-        }
-        if (endDateTime.isBefore(startDateTime)) {
-            throw new IllegalArgumentException("End date/time cannot be before start date/time");
-        }
-        this.endDateTime = endDateTime;
+    /**
+     * Returns the duration of this alert in hours.
+     */
+    public long getDurationInHours() {
+        return Duration.between(startDateTime, endDateTime).toHours();
     }
 
     public UUID getId() {

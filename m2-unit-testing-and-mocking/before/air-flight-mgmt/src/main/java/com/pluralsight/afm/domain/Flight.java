@@ -1,5 +1,6 @@
 package com.pluralsight.afm.domain;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -7,15 +8,40 @@ import java.util.UUID;
  * Represents a flight with scheduling and status management.
  * Contains business logic for flight operations like rescheduling and arrival time calculation.
  */
+@Entity
+@Table(name = "flights")
 public class Flight {
+
+    @Id
     private UUID id;
+
     private String flightNumber;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "icaoCountryCode", column = @Column(name = "departure_country_code")),
+            @AttributeOverride(name = "city", column = @Column(name = "departure_city")),
+            @AttributeOverride(name = "icaoAirportCode", column = @Column(name = "departure_airport_code"))
+    })
     private Location departure;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "icaoCountryCode", column = @Column(name = "destination_country_code")),
+            @AttributeOverride(name = "city", column = @Column(name = "destination_city")),
+            @AttributeOverride(name = "icaoAirportCode", column = @Column(name = "destination_airport_code"))
+    })
     private Location destination;
-    private String aircraftId;
+
+    private UUID aircraftId;
+
     private LocalDateTime scheduledDepartureTime;
+
     private int durationInMinutes;
+
+    @Enumerated(EnumType.STRING)
     private FlightStatus status;
+
     private UUID affectedByAlertId;
 
     protected Flight() {}
@@ -24,7 +50,7 @@ public class Flight {
                   String flightNumber,
                   Location departure,
                   Location destination,
-                  String aircraftId,
+                  UUID aircraftId,
                   LocalDateTime scheduledDepartureTime,
                   int durationInMinutes) {
         this.id = id;
@@ -88,8 +114,8 @@ public class Flight {
     }
 
     public boolean involvesCountry(String icaoCountryPrefix) {
-        return departure.icaoCountryCode().equals(icaoCountryPrefix) ||
-               destination.icaoCountryCode().equals(icaoCountryPrefix);
+        return departure.getIcaoCountryCode().equals(icaoCountryPrefix) ||
+               destination.getIcaoCountryCode().equals(icaoCountryPrefix);
     }
 
     public UUID getId() {
@@ -108,7 +134,7 @@ public class Flight {
         return destination;
     }
 
-    public String getAircraftId() {
+    public UUID getAircraftId() {
         return aircraftId;
     }
 

@@ -1,13 +1,14 @@
 package com.pluralsight.afm.exception;
 
+import java.util.UUID;
+
 /**
  * Exception thrown when a flight cannot be found.
  */
 public class FlightNotFoundException extends RuntimeException {
+    private final UUID flightId;
 
-    private final Long flightId;
-
-    public FlightNotFoundException(Long flightId) {
+    public FlightNotFoundException(UUID flightId) {
         super("Flight not found with id: " + flightId);
         this.flightId = flightId;
     }
@@ -17,7 +18,7 @@ public class FlightNotFoundException extends RuntimeException {
         this.flightId = null;
     }
 
-    public Long getFlightId() {
+    public UUID getFlightId() {
         return flightId;
     }
 }
