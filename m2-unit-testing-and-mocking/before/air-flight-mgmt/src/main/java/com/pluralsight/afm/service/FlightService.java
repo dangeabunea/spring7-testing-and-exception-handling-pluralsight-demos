@@ -9,6 +9,7 @@ import com.pluralsight.afm.repository.FlightRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -80,5 +81,9 @@ public class FlightService {
 
     public Optional<Flight> findByFlightNumber(String flightNumber) {
         return flightRepository.findByFlightNumber(flightNumber);
+    }
+
+    public List<Flight> findAll() {
+        return flightRepository.findAll();
     }
 }

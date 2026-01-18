@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/flights")
@@ -18,6 +18,11 @@ public class FlightController {
 
     public FlightController(FlightService flightService) {
         this.flightService = flightService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Flight>> getAllFlights() {
+        return ResponseEntity.ok(flightService.findAll());
     }
 
     @PostMapping
@@ -33,9 +38,10 @@ public class FlightController {
                 .orElseThrow(() -> new FlightNotFoundException(flightNumber));
     }
 
-    @DeleteMapping("/{flightNumber}")
+    @PostMapping("/{flightNumber}/cancel")
     public ResponseEntity<Flight> cancelFlight(@PathVariable String flightNumber) {
         Flight cancelled = flightService.cancelFlight(flightNumber);
         return ResponseEntity.ok(cancelled);
     }
 }
+

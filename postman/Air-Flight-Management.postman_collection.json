@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Air Flight Management",
+		"description": "Postman collection for the Air Flight Management demo application.\n\nCovers REST API endpoints for managing flights and country flight alerts.\n\n**Base URL:** http://localhost:8080",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Alerts",
+			"item": [
+				{
+					"name": "Declare Alert - France Strike",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"icaoCountryCode\": \"LF\",\n    \"startDateTime\": \"2026-01-20T00:00:00\",\n    \"endDateTime\": \"2026-01-22T23:59:59\",\n    \"description\": \"Air traffic controller strike in France\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "alerts"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Declare Alert - Germany Weather",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"icaoCountryCode\": \"ED\",\n    \"startDateTime\": \"2026-01-18T06:00:00\",\n    \"endDateTime\": \"2026-01-19T18:00:00\",\n    \"description\": \"Severe winter storm affecting German airports\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "alerts"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Alert by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/{{alertId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "alerts", "{{alertId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Alerts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "alerts"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Flights",
+			"item": [
+				{
+					"name": "Get All Flights",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/flights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Flight - Paris to London",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightNumber\": \"AF101\",\n    \"departureIcaoCountryCode\": \"LF\",\n    \"departureCity\": \"Paris\",\n    \"departureIcaoAirportCode\": \"LFPG\",\n    \"destinationIcaoCountryCode\": \"EG\",\n    \"destinationCity\": \"London\",\n    \"destinationIcaoAirportCode\": \"EGLL\",\n    \"aircraftId\": \"550e8400-e29b-41d4-a716-446655440001\",\n    \"scheduledDepartureTime\": \"2026-01-21T10:30:00\",\n    \"durationInMinutes\": 75\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/flights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Flight - Frankfurt to Madrid",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightNumber\": \"LH456\",\n    \"departureIcaoCountryCode\": \"ED\",\n    \"departureCity\": \"Frankfurt\",\n    \"departureIcaoAirportCode\": \"EDDF\",\n    \"destinationIcaoCountryCode\": \"LE\",\n    \"destinationCity\": \"Madrid\",\n    \"destinationIcaoAirportCode\": \"LEMD\",\n    \"aircraftId\": \"550e8400-e29b-41d4-a716-446655440002\",\n    \"scheduledDepartureTime\": \"2026-01-25T14:00:00\",\n    \"durationInMinutes\": 165\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/flights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Flight - London to New York",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightNumber\": \"BA178\",\n    \"departureIcaoCountryCode\": \"EG\",\n    \"departureCity\": \"London\",\n    \"departureIcaoAirportCode\": \"EGLL\",\n    \"destinationIcaoCountryCode\": \"K\",\n    \"destinationCity\": \"New York\",\n    \"destinationIcaoAirportCode\": \"KJFK\",\n    \"aircraftId\": \"550e8400-e29b-41d4-a716-446655440003\",\n    \"scheduledDepartureTime\": \"2026-01-22T09:00:00\",\n    \"durationInMinutes\": 480\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/flights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Flight - Madrid to Lisbon",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightNumber\": \"IB305\",\n    \"departureIcaoCountryCode\": \"LE\",\n    \"departureCity\": \"Madrid\",\n    \"departureIcaoAirportCode\": \"LEMD\",\n    \"destinationIcaoCountryCode\": \"LP\",\n    \"destinationCity\": \"Lisbon\",\n    \"destinationIcaoAirportCode\": \"LPPT\",\n    \"aircraftId\": \"550e8400-e29b-41d4-a716-446655440004\",\n    \"scheduledDepartureTime\": \"2026-02-15T16:30:00\",\n    \"durationInMinutes\": 60\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/flights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Flight by Number",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/flights/AF101",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights", "AF101"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Flight - Not Found",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/flights/XX999",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights", "XX999"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Flight",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/flights/AF101/cancel",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "flights", "AF101", "cancel"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
