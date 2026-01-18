@@ -6,7 +6,7 @@ import java.util.UUID;
 /**
  * Data transfer object for creating a new flight.
  */
-public record CreateFlightRequestDto(
+public record CreateFlightDto(
         String flightNumber,
         String departureIcaoCountryCode,
         String departureCity,

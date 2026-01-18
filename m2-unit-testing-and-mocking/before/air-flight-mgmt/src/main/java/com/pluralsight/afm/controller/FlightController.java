@@ -1,7 +1,7 @@
 package com.pluralsight.afm.controller;
 
 import com.pluralsight.afm.domain.Flight;
-import com.pluralsight.afm.dto.CreateFlightRequestDto;
+import com.pluralsight.afm.dto.CreateFlightDto;
 import com.pluralsight.afm.exception.FlightNotFoundException;
 import com.pluralsight.afm.service.FlightService;
 import org.springframework.http.HttpStatus;
@@ -21,21 +21,21 @@ public class FlightController {
     }
 
     @PostMapping
-    public ResponseEntity<Flight> createFlight(@RequestBody CreateFlightRequestDto request) {
+    public ResponseEntity<Flight> createFlight(@RequestBody CreateFlightDto request) {
         Flight flight = flightService.createFlight(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(flight);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Flight> getFlight(@PathVariable UUID id) {
-        return flightService.findById(id)
+    @GetMapping("/{flightNumber}")
+    public ResponseEntity<Flight> getFlight(@PathVariable String flightNumber) {
+        return flightService.findByFlightNumber(flightNumber)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new FlightNotFoundException(id));
+                .orElseThrow(() -> new FlightNotFoundException(flightNumber));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Flight> cancelFlight(@PathVariable UUID id) {
-        Flight cancelled = flightService.cancelFlight(id);
+    @DeleteMapping("/{flightNumber}")
+    public ResponseEntity<Flight> cancelFlight(@PathVariable String flightNumber) {
+        Flight cancelled = flightService.cancelFlight(flightNumber);
         return ResponseEntity.ok(cancelled);
     }
 }

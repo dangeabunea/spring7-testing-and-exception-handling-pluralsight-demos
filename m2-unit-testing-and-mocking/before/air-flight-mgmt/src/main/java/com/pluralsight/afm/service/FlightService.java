@@ -3,10 +3,11 @@ package com.pluralsight.afm.service;
 import com.pluralsight.afm.domain.CountryFlightAlert;
 import com.pluralsight.afm.domain.Flight;
 import com.pluralsight.afm.domain.Location;
-import com.pluralsight.afm.dto.CreateFlightRequestDto;
+import com.pluralsight.afm.dto.CreateFlightDto;
 import com.pluralsight.afm.exception.FlightNotFoundException;
 import com.pluralsight.afm.repository.FlightRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -26,7 +27,8 @@ public class FlightService {
      * If there's an active alert for the departure or destination country,
      * the flight is automatically cancelled and linked to the alert.
      */
-    public Flight createFlight(CreateFlightRequestDto request) {
+    @Transactional
+    public Flight createFlight(CreateFlightDto request) {
         Location departure = new Location(
                 request.departureIcaoCountryCode(),
                 request.departureCity(),
@@ -40,7 +42,7 @@ public class FlightService {
         );
 
         if (departure.getIcaoAirportCode().equals(destination.getIcaoAirportCode())) {
-            throw new IllegalArgumentException("Departure and destination airports must be different");
+            throw new IllegalArgumentException("Departure and destination must be different");
         }
 
         Flight flight = new Flight(
@@ -60,28 +62,23 @@ public class FlightService {
         Optional<CountryFlightAlert> destinationAlert = alertService
                 .findActiveAlertForCountryAt(destination.getIcaoCountryCode(), request.scheduledDepartureTime());
 
-        if (departureAlert.isPresent()) {
-            flight.cancel();
-            flight.setAffectedByAlertId(departureAlert.get().getId());
-        } else if (destinationAlert.isPresent()) {
-            flight.cancel();
-            flight.setAffectedByAlertId(destinationAlert.get().getId());
+        if (departureAlert.isPresent() || destinationAlert.isPresent()) {
+            throw new IllegalStateException("Flight cannot be scheduled because of an active alert");
         }
 
         return flightRepository.save(flight);
     }
 
-    public Flight cancelFlight(UUID flightId) {
+    public Flight cancelFlight(String flightNumber) {
         Flight flight = flightRepository
-                .findById(flightId)
-                .orElseThrow(() -> new FlightNotFoundException(flightId));
-
+                .findByFlightNumber(flightNumber)
+                .orElseThrow(() -> new FlightNotFoundException(flightNumber));
         flight.cancel();
 
         return flightRepository.save(flight);
     }
 
-    public Optional<Flight> findById(UUID id) {
-        return flightRepository.findById(id);
+    public Optional<Flight> findByFlightNumber(String flightNumber) {
+        return flightRepository.findByFlightNumber(flightNumber);
     }
 }

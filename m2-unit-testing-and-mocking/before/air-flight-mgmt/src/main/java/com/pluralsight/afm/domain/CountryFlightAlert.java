@@ -69,11 +69,12 @@ public class CountryFlightAlert {
         return afterStart && beforeEnd;
     }
 
-    /**
-     * Returns the duration of this alert in hours.
-     */
     public long getDurationInHours() {
         return Duration.between(startDateTime, endDateTime).toHours();
+    }
+
+    public long getDurationInMinutes() {
+        return Duration.between(startDateTime, endDateTime).toMinutes();
     }
 
     public UUID getId() {

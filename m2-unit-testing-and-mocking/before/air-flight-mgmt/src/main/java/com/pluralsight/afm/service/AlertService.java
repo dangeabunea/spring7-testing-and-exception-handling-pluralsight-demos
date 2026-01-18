@@ -6,6 +6,7 @@ import com.pluralsight.afm.domain.FlightStatus;
 import com.pluralsight.afm.repository.AlertRepository;
 import com.pluralsight.afm.repository.FlightRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,7 @@ public class AlertService {
         this.flightRepository = flightRepository;
     }
 
+    @Transactional
     public CountryFlightAlert declareAlert(String icaoCountryCode,
                                            LocalDateTime startDateTime,
                                            LocalDateTime endDateTime,
@@ -58,7 +60,7 @@ public class AlertService {
 
         for (Flight flight : affectedFlights) {
             if (alert.getDurationInHours() < CANCELLATION_THRESHOLD_HOURS) {
-                flight.reschedule(alert.getEndDateTime().plusMinutes(30));
+                flight.reschedule(alert.getEndDateTime());
             } else {
                 flight.cancel();
             }

@@ -1,7 +1,7 @@
 package com.pluralsight.afm.controller;
 
 import com.pluralsight.afm.domain.CountryFlightAlert;
-import com.pluralsight.afm.dto.DeclareAlertRequestDto;
+import com.pluralsight.afm.dto.DeclareAlertDto;
 import com.pluralsight.afm.exception.AlertNotFoundException;
 import com.pluralsight.afm.service.AlertService;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class AlertController {
     }
 
     @PostMapping
-    public ResponseEntity<CountryFlightAlert> declareAlert(@RequestBody DeclareAlertRequestDto request) {
+    public ResponseEntity<CountryFlightAlert> declareAlert(@RequestBody DeclareAlertDto request) {
         CountryFlightAlert alert = alertService.declareAlert(
                 request.icaoCountryCode(),
                 request.startDateTime(),
