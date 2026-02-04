@@ -2,51 +2,55 @@ package com.pluralsight.afm.controller;
 
 import com.pluralsight.afm.domain.Flight;
 import com.pluralsight.afm.domain.FlightStatus;
-import com.pluralsight.afm.domain.Location;
 import com.pluralsight.afm.dto.CreateFlightDto;
-import com.pluralsight.afm.service.FlightService;
+import com.pluralsight.afm.repository.FlightRepository;
+import com.pluralsight.afm.service.AlertService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Test slice for FlightController using @WebMvcTest.
+ * Full integration test for FlightController using @SpringBootTest.
  *
- * Key differences from @SpringBootTest:
- * - Only loads web layer (controller, filters, converters)
- * - No database, no JPA, no real services
- * - All dependencies must be mocked
- * - Much faster startup
- * - Tests controller logic in isolation
+ * Key characteristics:
+ * - Loads the entire Spring application context (controllers, services, repositories)
+ * - Starts an embedded server on a random port
+ * - Uses real H2 database with Hibernate for persistence
+ * - Can verify data is actually persisted to the database
+ * - Can use @MockitoBean to mock external dependencies (AlertService)
+ * - Slower startup (~5-6 seconds) but tests real component interactions
+ * - Data persists across tests - use @BeforeEach cleanup for test isolation
  */
-@WebMvcTest(FlightController.class)
-class FlightControllerSliceTest {
-
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@AutoConfigureRestTestClient
+class FlightControllerFullIntegrationTest {
     @Autowired
-    private WebApplicationContext context;
+    private FlightRepository flightRepository;
 
     @MockitoBean
-    private FlightService flightService;
+    private AlertService alertService;
 
+    @Autowired
     private RestTestClient restTestClient;
 
     @BeforeEach
     void setUp() {
-        restTestClient = RestTestClient.bindToApplicationContext(context).build();
+        this.flightRepository.deleteAll();
     }
 
     @Nested
@@ -67,19 +71,8 @@ class FlightControllerSliceTest {
                     90
             );
 
-            // Create the expected flight that the service would return
-            var expectedFlight = new Flight(
-                    UUID.randomUUID(),
-                    "LH2030",
-                    new Location("ED", "Berlin", "EDDB"),
-                    new Location("EH", "Amsterdam", "EHAM"),
-                    request.aircraftId(),
-                    LocalDateTime.of(2026, 6, 15, 10, 30),
-                    90
-            );
-
-            when(flightService.createFlight(any(CreateFlightDto.class)))
-                    .thenReturn(expectedFlight);
+            when(alertService.findActiveAlertForCountryAt(any(), any()))
+                    .thenReturn(Optional.empty());
 
             // Act & Assert
             restTestClient.post()
@@ -101,8 +94,8 @@ class FlightControllerSliceTest {
                         assertThat(flight.getDurationInMinutes()).isEqualTo(90);
                     });
 
-            // Verify the controller called the service
-            verify(flightService).createFlight(any(CreateFlightDto.class));
+            var flight = flightRepository.findByFlightNumber("LH2030").get();
+            assertThat(flight).isNotNull();
         }
     }
 }
